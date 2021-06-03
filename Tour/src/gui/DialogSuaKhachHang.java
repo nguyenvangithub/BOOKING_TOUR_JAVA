@@ -249,6 +249,7 @@ public class DialogSuaKhachHang extends JDialog implements ActionListener{
 		luuButton.addActionListener(this);
 		
 	}
+
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -279,32 +280,34 @@ public class DialogSuaKhachHang extends JDialog implements ActionListener{
 			themDuLieuMacDinh();
 		}
 		else if(o.equals(luuButton)) {
-			String maKhachHang = maLabel2.getText();
-			String tenKhachHang = hoTenTextField.getText().trim();
-			boolean gioiTinh = gioiTinhCheckBox.isSelected();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			java.sql.Date ngaySinh = java.sql.Date.valueOf(sdf.format(ngaySinhChooser.getDate()));
-			String soDienThoai = sDTTextField.getText().trim();
-			if(!soDienThoai.equals(khachHang.getSoDienThoai())) {
-				if(TaiKhoan_DAO.getTaiKhoan(soDienThoai) != null) {
-					JOptionPane.showMessageDialog(this, "Số điện thoại đã được đăng ký!");
-					selectAllText();
-					sDTTextField.requestFocus();
-					return;
+			if (checkData_SuaKhachHang()) {
+				String maKhachHang = maLabel2.getText();
+				String tenKhachHang = hoTenTextField.getText().trim();
+				boolean gioiTinh = gioiTinhCheckBox.isSelected();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				java.sql.Date ngaySinh = java.sql.Date.valueOf(sdf.format(ngaySinhChooser.getDate()));
+				String soDienThoai = sDTTextField.getText().trim();
+				if(!soDienThoai.equals(khachHang.getSoDienThoai())) {
+					if(TaiKhoan_DAO.getTaiKhoan(soDienThoai) != null) {
+						JOptionPane.showMessageDialog(this, "Số điện thoại đã được đăng ký!");
+						selectAllText();
+						sDTTextField.requestFocus();
+						return;
+					}
 				}
-			}
-			String email = emailTextField.getText().trim();
-			DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
-			String matKhau = nhapLaiMKField.getText();
-			KhachHang khachHang = new KhachHang(soDienThoai, email, matKhau, maKhachHang, tenKhachHang, gioiTinh, ngaySinh, diaChi);
-			if(kh_DAO.updateKhachHang(khachHang, this.khachHang.getSoDienThoai())) {
-				JOptionPane.showMessageDialog(this, "Sửa thành công!");
-				dispose();
-			}
-			else {
-				JOptionPane.showMessageDialog(this, "Sửa không thành công");
-				selectAllText();
-				hoTenTextField.requestFocus();
+				String email = emailTextField.getText().trim();
+				DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
+				String matKhau = nhapLaiMKField.getText();
+				KhachHang khachHang = new KhachHang(soDienThoai, email, matKhau, maKhachHang, tenKhachHang, gioiTinh, ngaySinh, diaChi);
+				if(kh_DAO.updateKhachHang(khachHang, this.khachHang.getSoDienThoai())) {
+					JOptionPane.showMessageDialog(this, "Sửa thành công!");
+					dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Sửa không thành công");
+					selectAllText();
+					hoTenTextField.requestFocus();
+				}
 			}
 		}
 	}
@@ -331,4 +334,76 @@ public class DialogSuaKhachHang extends JDialog implements ActionListener{
 			nhapLaiMKField.setText("");
 		}
 	}
+	// Kiem tra du lieu DialogSuaKhachHang-------------------------------------------------------
+		public void getShowMessage(String str, JTextField txt)
+		{
+			JOptionPane.showMessageDialog(this , str);
+			txt.selectAll();
+			txt.requestFocus();
+		}
+		//
+
+		public boolean checkData_SuaKhachHang()
+		{
+			String mess = "";
+			String tenKhachHang = hoTenTextField.getText().trim();
+			if(!(tenKhachHang.length()>0 && tenKhachHang.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")))
+			{
+				if (tenKhachHang.length() == 0 ) {
+					JOptionPane.showMessageDialog(this, "Hãy nhập tên khách hàng.");
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Tên nhân viên phải viết hoa chữ cái đầu.");				
+				}
+				hoTenTextField.selectAll();
+				hoTenTextField.requestFocus();
+				return false;
+			}
+			//
+			
+			String soDienThoai = sDTTextField.getText().trim();
+			if (!(soDienThoai.length()>0 && soDienThoai.matches("^0[0-9]{9}$"))) {
+				if (soDienThoai.length() == 0 ) {
+					JOptionPane.showMessageDialog(this, "Hãy nhập số điện thoại của khách hàng.");
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Số điện thoại có 10 số và bắt đầu bằng số 0.");				
+				}
+				sDTTextField.selectAll();
+				sDTTextField.requestFocus();
+				return false;
+			}
+			
+			//
+			String email = emailTextField.getText().trim();
+			if (!(email.matches("^[A-Za-z0-9._]+@[A-Za-z0-9.]+\\.[a-z]{2,4}$"))) {
+				if (email.length() == 0) {
+					mess = "";
+				} else {
+				mess = "Email phai đúng theo định dạng (VD: Abc@gmail.com)";
+				getShowMessage(mess,emailTextField);
+				return false;
+				}				
+			}
+			//
+			
+			if (tinhThanhComboBox.getSelectedIndex() == 0) {
+				JOptionPane.showMessageDialog(this , "Hay chọn địa chỉ.");
+				return false;
+			}
+			//
+			String matKhau = nhapLaiMKField.getText().trim();
+			if (!(matKhau.length()>0 && matKhau.matches("^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,20}$"))) {
+				if (matKhau.length() <= 0) {
+					mess = "Hãy nhập thông tin cho ô mật khẩu.";
+				}
+				else {
+					mess = "Mật khẩu phải trên 6 ký tự trong dó có một chữ số, một chữ cái và một ký tự đặc biệt";
+				}
+				getShowMessage(mess, nhapLaiMKField);
+				return false;
+			}
+
+			return true;
+		}
 }
