@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ import javax.swing.text.NumberFormatter;
 
 import com.toedter.calendar.JDateChooser;
 
+import connect.ConnectDB;
 import dao.ChuyenDi_DAO;
 import dao.DiaChi_DAO;
 import dao.HuongDanVien_DAO;
@@ -61,9 +63,15 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 		setSize(720, 550);
 		setLocationRelativeTo(null);
 		buidDialogThemChuyenDi();
+		
 	}
 	private void buidDialogThemChuyenDi() {
-		
+		try {
+			ConnectDB.getInstance().connect();
+			
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}
 		wrapper = new JPanel();
 		wrapper.setLayout(null);
 		wrapper.setBackground(MainScreen.BACKGROUND_COLOR);
@@ -122,7 +130,7 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 		ngayKhoiHanhDateChooser.setBackground(wrapper.getBackground());
 		Calendar maxDate2 = Calendar.getInstance();
 		maxDate2.setTime(Date.valueOf(LocalDate.now()));
-		maxDate2.roll(Calendar.DAY_OF_YEAR, 3);
+		maxDate2.roll(Calendar.DAY_OF_YEAR, 7);
 		ngayKhoiHanhDateChooser.setMinSelectableDate(Date.valueOf(df.format(maxDate2.getTime())));
 		wrapper.add(ngayKhoiHanhDateChooser);
 		
@@ -234,7 +242,9 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 		huyButton.addActionListener(this);
 		themHuongDanVien.addActionListener(this);
 		luuButton.addActionListener(this);
+		lamMoiButton.addActionListener(this);
 	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -243,7 +253,19 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 			createDialogHuongDanVien();
 		} else if (o.equals(huyButton)) {
 			dispose();
+		}else if(o.equals(lamMoiButton))
+		{
+			loaiChuyenDiboComboBox.setSelectedIndex(0);
+			ngayKhoiHanhDateChooser.setDate(null);
+			ngayKetThucDateChooser.setDate(null);
+			soChoSpinner.setValue(0);
+			giaChuyenDiField.setText("");
+			noiKhoiHanhComboBox.setSelectedIndex(0);
+			motaArea.setText("");
+			tableModel.removeRow(0);
 		}else if (o.equals(luuButton)) {
+			if (checkData_ThemChuyenDi()) {
+
 			try {
 				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 				String ngayKhoiHanh = df.format(ngayKhoiHanhDateChooser.getDate());
@@ -279,6 +301,8 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 				// TODO: handle exception
 				JOptionPane.showMessageDialog(this, "Định dạng không phù hợp!");
 				e2.printStackTrace();
+			}
+			
 			}
 		}
 		
@@ -342,6 +366,44 @@ public class DialogThemChuyenDi extends JDialog implements ActionListener{
 		});
 		main.add(them);
 		themHuongDanVienVaoChuyenDi.setVisible(true);
+	}
+	//
+
+	
+//	
+	public boolean checkData_ThemChuyenDi()
+	{
+
+		int soCho = Integer.parseInt(soChoSpinner.getValue().toString());
+		if (soCho <= 10) {
+			JOptionPane.showMessageDialog(this, "Sỗ chỗ trong một chuyến phải trên 10 người.");
+			soChoSpinner.requestFocus();
+			return false;
+		}
+//
+		String giaChuyenDi = giaChuyenDiField.getText().trim();
+		
+		if (!(giaChuyenDi.length()>0 && giaChuyenDi.matches("^[0-9]{4,}000"))) {
+			JOptionPane.showMessageDialog(this, "Giá chuyến đi phải trên 1 triệu đồng và kết thúc bằng 000");
+			giaChuyenDiField.requestFocus();
+			giaChuyenDiField.selectAll();
+			return false;
+		}
+//
+		String moTa = motaArea.getText().trim();
+		if (moTa.length() <= 0) {
+			JOptionPane.showMessageDialog(this, "Hãy mô tả thông tin cho chuyến đi.");
+			motaArea.requestFocus();
+			motaArea.selectAll();
+			return false;
+		}
+		
+		int row =  tableHuongDanVien.getRowCount();
+		if (row == 0) {
+			JOptionPane.showMessageDialog(this , "Hãy chọn hướng đẫn viên cho chuyến đi.");
+		}
+
+		return true;
 	}
 }
 
