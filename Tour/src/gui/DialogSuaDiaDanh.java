@@ -174,24 +174,26 @@ public class DialogSuaDiaDanh extends JFrame implements ActionListener {
 			dispose();
 		}
 		else if(o.equals(luuButton)) {
-			String tenDiaDanh = tenDiaDanTextField.getText().trim();
-			String thuocTinh = tinhThanhCB.getSelectedItem().toString();
-			if(tenDiaDanh.equals("")) {
-				JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
-			}else if(thuocTinh.equals("<Tỉnh thành>")) {
-				JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
+			if (checkData_SuaDiaDanh()) {
+				String tenDiaDanh = tenDiaDanTextField.getText().trim();
+				String thuocTinh = tinhThanhCB.getSelectedItem().toString();
+				if(tenDiaDanh.equals("")) {
+					JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
+				}else if(thuocTinh.equals("<Tỉnh thành>")) {
+					JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
+				}
+				DiaDanh diaDanh = new DiaDanh();
+				diaDanh.setMaDiaDanh(this.diaDanh.getMaDiaDanh());
+				diaDanh.setTenDiaDanh(tenDiaDanh);
+				diaDanh.setThuocTinh(thuocTinh);;
+				diaDanh.setAnhDiaDanh(null);
+				if(DiaDanh_DAO.updateDiaDanh(diaDanh, filePath))  {
+					JOptionPane.showMessageDialog(this, "Sửa thành công!");
+					dispose();
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Sửa thất bại!");
 			}
-			DiaDanh diaDanh = new DiaDanh();
-			diaDanh.setMaDiaDanh(this.diaDanh.getMaDiaDanh());
-			diaDanh.setTenDiaDanh(tenDiaDanh);
-			diaDanh.setThuocTinh(thuocTinh);;
-			diaDanh.setAnhDiaDanh(null);
-			if(DiaDanh_DAO.updateDiaDanh(diaDanh, filePath))  {
-				JOptionPane.showMessageDialog(this, "Sửa thành công!");
-				dispose();
-			}
-			else
-				JOptionPane.showMessageDialog(this, "Sửa thất bại!");
 		}
 		
 	}
@@ -200,5 +202,28 @@ public class DialogSuaDiaDanh extends JFrame implements ActionListener {
 		tinhThanhCB.setSelectedItem(diaDanh.getThuocTinh());
 		ImageIcon icon = new ImageIcon(diaDanh.getAnhDiaDanh());
 		hinhAnh.setIcon(new ImageIcon(icon.getImage().getScaledInstance(hinhAnh.getWidth(), hinhAnh.getHeight(), Image.SCALE_SMOOTH)));
+	}
+	//
+	public boolean checkData_SuaDiaDanh()
+	{
+
+		String tenDiaDanh = tenDiaDanTextField.getText().trim();
+		if (!tenDiaDanh.equals("") && !tenDiaDanh.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Za-z]{0,1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")) {
+			if (tenDiaDanh.equals("")) {
+				JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
+			} else {
+
+				JOptionPane.showMessageDialog(this, "Tên địa danh phải viết Hoa chữ cái đầu cho tên địa danh và từ đầu tiên.");
+			}
+			return false;
+		}
+		//
+		String thuocTinh = tinhThanhCB.getSelectedItem().toString();
+		if(thuocTinh.equals("<Tỉnh thành>")) {
+			JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
+			return false;
+		}
+		
+		return true;
 	}
 }
