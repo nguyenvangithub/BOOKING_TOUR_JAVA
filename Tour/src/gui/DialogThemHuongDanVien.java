@@ -8,6 +8,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -20,7 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-
+import connect.ConnectDB;
 import dao.DiaChi_DAO;
 import dao.HuongDanVien_DAO;
 import dao.NhanVien_DAO;
@@ -53,6 +54,11 @@ public class DialogThemHuongDanVien extends JDialog implements ActionListener{
 		buidDialogThemHuongDanVien();
 	}
 	private void buidDialogThemHuongDanVien() {
+		try {
+			ConnectDB.getInstance().connect();
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}
 		addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -183,6 +189,7 @@ public class DialogThemHuongDanVien extends JDialog implements ActionListener{
 		maLabel2.setText(HuongDanVien_DAO.phatSinhMaHuongDanVien());
 		
 	}
+
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -224,37 +231,90 @@ public class DialogThemHuongDanVien extends JDialog implements ActionListener{
 			hoTenTextField.setText("");
 			sDTTextField.setText("");
 			tinhThanhComboBox.setSelectedIndex(0);
+			quanHuyenComboBox.setSelectedIndex(0);
+			phuongXaComboBox.setSelectedIndex(0);
 		}
 		else if(o.equals(luuButton)) {
-			String tenHuongDanVien = hoTenTextField.getText().trim();
-			boolean gioiTinh = gioiTinhCheckBox.isSelected();
-			String soDienThoai = sDTTextField.getText().trim();
-			if(hdv_DAO.getHuongDanVienTheoSoDienThoai(soDienThoai) != null) {
-				JOptionPane.showMessageDialog(this, "Số điện thoại đã được sử dụng!");
-				selectAllText();
-				sDTTextField.requestFocus();
-				return;
-			}
-			DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
-			HuongDanVien huongDanVien = new HuongDanVien();
-			huongDanVien.setTenHuongDanVien(tenHuongDanVien);
-			huongDanVien.setGioiTinh(gioiTinh);
-			huongDanVien.setSoDienThoai(soDienThoai);
-			huongDanVien.setDiaChi(diaChi);
-			if(hdv_DAO.themHuongDanVien(huongDanVien)) {
-				JOptionPane.showMessageDialog(this, "Thêm thành công!");
-				dispose();
-			}
-			else {
-				JOptionPane.showMessageDialog(this, "Thêm thất bại!");
-				selectAllText();
-				hoTenTextField.requestFocus();
+			if(checkData_ThemHuongDanVien())
+			{
+				String tenHuongDanVien = hoTenTextField.getText().trim();
+				boolean gioiTinh = gioiTinhCheckBox.isSelected();
+				String soDienThoai = sDTTextField.getText().trim();
+				if(hdv_DAO.getHuongDanVienTheoSoDienThoai(soDienThoai) != null) {
+					JOptionPane.showMessageDialog(this, "Số điện thoại đã được sử dụng!");
+					selectAllText();
+					sDTTextField.requestFocus();
+					return;
+				}
+				DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
+				HuongDanVien huongDanVien = new HuongDanVien();
+				huongDanVien.setTenHuongDanVien(tenHuongDanVien);
+				huongDanVien.setGioiTinh(gioiTinh);
+				huongDanVien.setSoDienThoai(soDienThoai);
+				huongDanVien.setDiaChi(diaChi);
+				if(hdv_DAO.themHuongDanVien(huongDanVien)) {
+					JOptionPane.showMessageDialog(this, "Thêm thành công!");
+					dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Thêm thất bại!");
+					selectAllText();
+					hoTenTextField.requestFocus();
+				}
 			}
 		}
 	}
 	private void selectAllText() {
 		hoTenTextField.selectAll();
 		sDTTextField.selectAll();
+	}
+	//
+	public void getShowMessage(String str, JTextField txt)
+	{
+		JOptionPane.showMessageDialog(this , str);
+		txt.selectAll();
+		txt.requestFocus();
+	}
+	//
+
+	public boolean checkData_ThemHuongDanVien()
+	{
+		String mess = "";
+		String tenNhanVien = hoTenTextField.getText().trim();
+		if(!(tenNhanVien.length()>0 && tenNhanVien.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")))
+		{
+			if (tenNhanVien.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập tên nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Tên nhân viên phải viết hoa chữ cái đầu.");				
+			}
+			hoTenTextField.selectAll();
+			hoTenTextField.requestFocus();
+			return false;
+		}
+		//
+		
+		String soDienThoai = sDTTextField.getText().trim();
+		if (!(soDienThoai.length()>0 && soDienThoai.matches("^0[0-9]{9}$"))) {
+			if (soDienThoai.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập số điện thoại của nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Số điện thoại có 10 số và bắt đầu bằng số 0.");				
+			}
+			sDTTextField.selectAll();
+			sDTTextField.requestFocus();
+			return false;
+		}
+		//
+		
+		if (tinhThanhComboBox.getSelectedIndex() == 0) {
+			JOptionPane.showMessageDialog(this , "Hay chọn địa chỉ.");
+			return false;
+		}
+		
+		return true;
 	}
 	
 }
