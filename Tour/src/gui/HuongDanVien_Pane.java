@@ -463,6 +463,10 @@ public class HuongDanVien_Pane extends JPanel implements ActionListener {
 					}
 				});
 			}
+			else
+			{
+				JOptionPane.showMessageDialog(this , "Hãy chọn nhân viên cần sửa");
+			}
 		}
 		else if(o.equals(buttonDauTrang)) {
 			int page = Integer.parseInt(soTrang.getText());
