@@ -58,6 +58,9 @@ public class DialogSuaNhanVien extends JDialog implements ActionListener{
 		setLocationRelativeTo(null);
 		buidDialogSuaKhachHang();
 	}
+	public DialogSuaNhanVien() {
+		// TODO Auto-generated constructor stub
+	}
 	private void buidDialogSuaKhachHang() {
 		addFocusListener(new FocusAdapter() {
 			@Override
@@ -230,6 +233,7 @@ public class DialogSuaNhanVien extends JDialog implements ActionListener{
 		luuButton.addActionListener(this);
 		
 	}
+
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -277,40 +281,42 @@ public class DialogSuaNhanVien extends JDialog implements ActionListener{
 				nhapLaiMKField.setVisible(true);
 		}
 		else if(o.equals(luuButton)) {
-			String maNhanVien = maLabel2.getText();
-			String tenNhanVien = hoTenTextField.getText().trim();
-			boolean gioiTinh = gioiTinhCheckBox.isSelected();
-			boolean trangThai = trangThaiCheckBox.isSelected();
-			String soDienThoai = sDTTextField.getText().trim();
-			String email = emailTextField.getText().trim();
-			DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
-			String matKhau = nhapLaiMKField.getText();
-			if(!soDienThoai.equals(nhanVien.getSoDienThoai())) {
-				if(TaiKhoan_DAO.getTaiKhoan(soDienThoai) != null) {
-					JOptionPane.showMessageDialog(this, "Số điện thoại đã được đăng ký!");
-					selectAllText();
-					sDTTextField.requestFocus();
-					return;
+			if (checkData_SuaNhanVien()) {
+				String maNhanVien = maLabel2.getText();
+				String tenNhanVien = hoTenTextField.getText().trim();
+				boolean gioiTinh = gioiTinhCheckBox.isSelected();
+				boolean trangThai = trangThaiCheckBox.isSelected();
+				String soDienThoai = sDTTextField.getText().trim();
+				String email = emailTextField.getText().trim();
+				DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
+				String matKhau = nhapLaiMKField.getText();
+				if(!soDienThoai.equals(nhanVien.getSoDienThoai())) {
+					if(TaiKhoan_DAO.getTaiKhoan(soDienThoai) != null) {
+						JOptionPane.showMessageDialog(this, "Số điện thoại đã được đăng ký!");
+						selectAllText();
+						sDTTextField.requestFocus();
+						return;
+					}
 				}
-			}
-			NhanVien nhanVien = new NhanVien();
-			nhanVien.setMaNhanVien(maNhanVien);
-			nhanVien.setTenNhanVien(tenNhanVien);
-			nhanVien.setGioiTinh(gioiTinh);
-			nhanVien.setTrangThai(trangThai);
-			nhanVien.setDiaChi(diaChi);
-			nhanVien.setSoDienThoai(soDienThoai);
-			nhanVien.setEmail(email);
-			nhanVien.setMatKhau(matKhau);
-			
-			if(nv_DAO.updateNhanVien(nhanVien, this.nhanVien.getSoDienThoai())) {
-				JOptionPane.showMessageDialog(this, "Sửa thành công!");
-				dispose();
-			}
-			else {
-				JOptionPane.showMessageDialog(this, "Sửa thất bại!");
-				selectAllText();
-				hoTenTextField.requestFocus();
+				NhanVien nhanVien = new NhanVien();
+				nhanVien.setMaNhanVien(maNhanVien);
+				nhanVien.setTenNhanVien(tenNhanVien);
+				nhanVien.setGioiTinh(gioiTinh);
+				nhanVien.setTrangThai(trangThai);
+				nhanVien.setDiaChi(diaChi);
+				nhanVien.setSoDienThoai(soDienThoai);
+				nhanVien.setEmail(email);
+				nhanVien.setMatKhau(matKhau);
+				
+				if(nv_DAO.updateNhanVien(nhanVien, this.nhanVien.getSoDienThoai())) {
+					JOptionPane.showMessageDialog(this, "Sửa thành công!");
+					dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Sửa thất bại!");
+					selectAllText();
+					hoTenTextField.requestFocus();
+				}
 			}
 		}
 	}
@@ -336,5 +342,77 @@ public class DialogSuaNhanVien extends JDialog implements ActionListener{
 		if(nhapLaiMKField.isVisible()) {
 			nhapLaiMKField.setText("");
 		}
+	}
+	//
+	public void getShowMessage(String str, JTextField txt)
+	{
+		JOptionPane.showMessageDialog(this , str);
+		txt.selectAll();
+		txt.requestFocus();
+	}
+	//
+
+	public boolean checkData_SuaNhanVien()
+	{
+		String mess = "";
+		String tenNhanVien = hoTenTextField.getText().trim();
+		if(!(tenNhanVien.length()>0 && tenNhanVien.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")))
+		{
+			if (tenNhanVien.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập tên nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Tên nhân viên phải viết hoa chữ cái đầu.");				
+			}
+			hoTenTextField.selectAll();
+			hoTenTextField.requestFocus();
+			return false;
+		}
+		//
+		
+		String soDienThoai = sDTTextField.getText().trim();
+		if (!(soDienThoai.length()>0 && soDienThoai.matches("^0[0-9]{9}$"))) {
+			if (soDienThoai.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập số điện thoại của nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Số điện thoại có 10 số và bắt đầu bằng số 0.");				
+			}
+			sDTTextField.selectAll();
+			sDTTextField.requestFocus();
+			return false;
+		}
+		
+		//
+		String email = emailTextField.getText().trim();
+		if (!(email.matches("^[a-zA-Z0-9._]+@[A-Za-z0-9.]+\\.[a-z]{2,4}$"))) {
+			if (email.length() == 0) {
+				mess = "";
+			} else {
+			mess = "Email phai đúng theo định dạng (VD: Abc@gmail.com)";
+			getShowMessage(mess,emailTextField);
+			return false;
+			}				
+		}
+		//
+		
+		if (tinhThanhComboBox.getSelectedIndex() == 0) {
+			JOptionPane.showMessageDialog(this , "Hay chọn địa chỉ.");
+			return false;
+		}
+		//
+		String matKhau = nhapLaiMKField.getText().trim();
+		if (!(matKhau.length()>0 && matKhau.matches("^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{6,20}$"))) {
+			if (matKhau.length() <= 0) {
+				mess = "Hãy nhập thông tin cho ô mật khẩu.";
+			}
+			else {
+				mess = "Mật khẩu phải trên 6 ký tự trong dó có một chữ số, một chữ cái và một ký tự đặc biệt";
+			}
+			getShowMessage(mess, nhapLaiMKField);
+			return false;
+		}
+
+		return true;
 	}
 }
