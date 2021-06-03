@@ -14,6 +14,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -30,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import connect.ConnectDB;
 import dao.DiaChi_DAO;
 import dao.DiaDanh_DAO;
 import entity.DiaDanh;
@@ -52,6 +54,13 @@ public class DialogThemDiaDanh extends JDialog implements ActionListener {
 		buidDialogThemDiaDanh();
 	}
 	private void buidDialogThemDiaDanh() {
+		try {
+			ConnectDB.getInstance().connect();
+			
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}
+		//
 		addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -134,6 +143,7 @@ public class DialogThemDiaDanh extends JDialog implements ActionListener {
 		huy.addActionListener(this);
 		themButton.addActionListener(this);
 	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -171,30 +181,56 @@ public class DialogThemDiaDanh extends JDialog implements ActionListener {
 			dispose();
 		}
 		else if(o.equals(themButton)) {
-			System.out.println(filePath);
-			if(filePath.equals("")) {
-				JOptionPane.showMessageDialog(this, "Chưa chọn file ảnh");
-				return;
+			if (checkData_ThemDiaDanh()) {
+				System.out.println(filePath);
+				if(filePath.equals("")) {
+					JOptionPane.showMessageDialog(this, "Chưa chọn file ảnh");
+					return;
+				}
+				String tenDiaDanh = tenDiaDanTextField.getText().trim();
+				String thuocTinh = tinhThanhCB.getSelectedItem().toString();
+				if(tenDiaDanh.equals("") ) {
+					JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
+				}else if(thuocTinh.equals("<Tỉnh thành>")) {
+					JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
+				}
+				DiaDanh diaDanh = new DiaDanh();
+				diaDanh.setMaDiaDanh(DiaDanh_DAO.phatSinhMaDiaDanh());
+				diaDanh.setTenDiaDanh(tenDiaDanTextField.getText().trim());
+				diaDanh.setThuocTinh(thuocTinh);;
+				diaDanh.setAnhDiaDanh(null);
+				if(DiaDanh_DAO.themDiaDanh(diaDanh, filePath))  {
+					JOptionPane.showMessageDialog(this, "Thêm thành công!");
+					dispose();
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Thêm thất bại!");
 			}
-			String tenDiaDanh = tenDiaDanTextField.getText().trim();
-			String thuocTinh = tinhThanhCB.getSelectedItem().toString();
-			if(tenDiaDanh.equals("")) {
-				JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
-			}else if(thuocTinh.equals("<Tỉnh thành>")) {
-				JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
-			}
-			DiaDanh diaDanh = new DiaDanh();
-			diaDanh.setMaDiaDanh(DiaDanh_DAO.phatSinhMaDiaDanh());
-			diaDanh.setTenDiaDanh(tenDiaDanTextField.getText().trim());
-			diaDanh.setThuocTinh(thuocTinh);;
-			diaDanh.setAnhDiaDanh(null);
-			if(DiaDanh_DAO.themDiaDanh(diaDanh, filePath))  {
-				JOptionPane.showMessageDialog(this, "Thêm thành công!");
-				dispose();
-			}
-			else
-				JOptionPane.showMessageDialog(this, "Thêm thất bại!");
 		}
 		
 	}
+	//
+	public boolean checkData_ThemDiaDanh()
+	{
+
+		String tenDiaDanh = tenDiaDanTextField.getText().trim();
+		if (!tenDiaDanh.equals("") && !tenDiaDanh.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Za-z]{0,1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")) {
+			if (tenDiaDanh.equals("")) {
+				JOptionPane.showMessageDialog(this, "Tên địa danh không hợp lệ");
+			} else {
+
+				JOptionPane.showMessageDialog(this, "Tên địa danh phải viết Hoa chữ cái đầu cho tên địa danh và từ đầu tiên.");
+			}
+			return false;
+		}
+		//
+		String thuocTinh = tinhThanhCB.getSelectedItem().toString();
+		if(thuocTinh.equals("<Tỉnh thành>")) {
+			JOptionPane.showMessageDialog(this, "Chưa chọn tỉnh thành!");
+			return false;
+		}
+		
+		return true;
+	}
+	
 }
