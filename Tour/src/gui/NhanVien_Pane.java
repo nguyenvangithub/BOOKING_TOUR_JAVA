@@ -338,7 +338,7 @@ public class NhanVien_Pane extends JPanel implements ActionListener {
 				});
 			}
 			else
-				JOptionPane.showMessageDialog(this, "Chưa chọn khách hàng để sửa!");
+				JOptionPane.showMessageDialog(this, "Chưa chọn nhân viên để sửa!");
 		}
 		else if(o.equals(buttonDauTrang)) {
 			int page = Integer.parseInt(soTrang.getText());
