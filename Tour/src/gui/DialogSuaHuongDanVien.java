@@ -187,6 +187,7 @@ public class DialogSuaHuongDanVien extends JDialog implements ActionListener{
 		themDuLieuMacDinh();
 		
 	}
+
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -228,25 +229,27 @@ public class DialogSuaHuongDanVien extends JDialog implements ActionListener{
 			themDuLieuMacDinh();
 		}
 		else if(o.equals(luuButton)) {
-			String maHuongDanVien = maLabel2.getText();
-			String tenHuongDanVien = hoTenTextField.getText().trim();
-			boolean gioiTinh = gioiTinhCheckBox.isSelected();
-			String soDienThoai = sDTTextField.getText().trim();
-			DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
-			HuongDanVien huongDanVien = new HuongDanVien();
-			huongDanVien.setMaHuongDanVien(maHuongDanVien);
-			huongDanVien.setTenHuongDanVien(tenHuongDanVien);
-			huongDanVien.setGioiTinh(gioiTinh);
-			huongDanVien.setSoDienThoai(soDienThoai);
-			huongDanVien.setDiaChi(diaChi);
-			if(hdv_DAO.updateHuongDanVien(huongDanVien)) {
-				JOptionPane.showMessageDialog(this, "Sửa thành công!");
-				dispose();
+			if (checkData_SuaHuongDanVien()) {
+				String maHuongDanVien = maLabel2.getText();
+				String tenHuongDanVien = hoTenTextField.getText().trim();
+				boolean gioiTinh = gioiTinhCheckBox.isSelected();
+				String soDienThoai = sDTTextField.getText().trim();
+				DiaChi diaChi = DiaChi_DAO.getDiaChi(tinhThanhComboBox.getSelectedItem().toString(), quanHuyenComboBox.getSelectedItem().toString(), phuongXaComboBox.getSelectedItem().toString());
+				HuongDanVien huongDanVien = new HuongDanVien();
+				huongDanVien.setMaHuongDanVien(maHuongDanVien);
+				huongDanVien.setTenHuongDanVien(tenHuongDanVien);
+				huongDanVien.setGioiTinh(gioiTinh);
+				huongDanVien.setSoDienThoai(soDienThoai);
+				huongDanVien.setDiaChi(diaChi);
+				if(hdv_DAO.updateHuongDanVien(huongDanVien)) {
+					JOptionPane.showMessageDialog(this, "Sửa thành công!");
+					dispose();
+				}
+				else {
+					JOptionPane.showMessageDialog(this, "Sửa thất bại!");
+					selectAllText();
+					hoTenTextField.requestFocus();
 			}
-			else {
-				JOptionPane.showMessageDialog(this, "Sửa thất bại!");
-				selectAllText();
-				hoTenTextField.requestFocus();
 			}
 		}
 	}
@@ -266,6 +269,54 @@ public class DialogSuaHuongDanVien extends JDialog implements ActionListener{
 	private void selectAllText() {
 		hoTenTextField.selectAll();
 		sDTTextField.selectAll();
+	}
+	//
+	public void getShowMessage(String str, JTextField txt)
+	{
+		JOptionPane.showMessageDialog(this , str);
+		txt.selectAll();
+		txt.requestFocus();
+	}
+	//
+
+	public boolean checkData_SuaHuongDanVien()
+	{
+		String mess = "";
+		String tenNhanVien = hoTenTextField.getText().trim();
+		if(!(tenNhanVien.length()>0 && tenNhanVien.matches("([ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*){1}(\\s+[ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴA-Z]{1}[ắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵa-z]*)*$")))
+		{
+			if (tenNhanVien.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập tên nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Tên nhân viên phải viết hoa chữ cái đầu.");				
+			}
+			hoTenTextField.selectAll();
+			hoTenTextField.requestFocus();
+			return false;
+		}
+		//
+		
+		String soDienThoai = sDTTextField.getText().trim();
+		if (!(soDienThoai.length()>0 && soDienThoai.matches("^0[0-9]{9}$"))) {
+			if (soDienThoai.length() == 0 ) {
+				JOptionPane.showMessageDialog(this, "Hãy nhập số điện thoại của nhân viên.");
+			}
+			else {
+				JOptionPane.showMessageDialog(this, "Số điện thoại có 10 số và bắt đầu bằng số 0.");				
+			}
+			sDTTextField.selectAll();
+			sDTTextField.requestFocus();
+			return false;
+		}
+		//
+		
+		if (tinhThanhComboBox.getSelectedIndex() == 0) {
+			JOptionPane.showMessageDialog(this , "Hay chọn địa chỉ.");
+			return false;
+		}
+		
+		return true;
 	}
 	
 }
